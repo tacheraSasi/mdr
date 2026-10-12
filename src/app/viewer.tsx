@@ -11,6 +11,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { SymbolView } from "expo-symbols";
 import Markdown from 'react-native-markdown-renderer';
 import { useMarkdownStyles } from "@/hooks/useMarkdownstyles";
+import { MDRender } from "@/components/MDRender";
 
 export default function ViewerScreen() {
   const { uri } = useLocalSearchParams<{ uri: string }>();
@@ -82,9 +83,9 @@ export default function ViewerScreen() {
             {fileContent ? (
               <View
                 >
-                  <Markdown style={mdStyles}>
+                  <MDRender style={mdStyles}>
                     {fileContent}
-                </Markdown>
+                </MDRender>
               </View>
             ) : (
               <View style={styles.centerMessage}>
