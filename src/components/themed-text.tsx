@@ -4,7 +4,17 @@ import { Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
+  type?:
+    | 'default'
+    | 'display'
+    | 'title'
+    | 'label'
+    | 'small'
+    | 'smallBold'
+    | 'subtitle'
+    | 'link'
+    | 'linkPrimary'
+    | 'code';
   themeColor?: ThemeColor;
 };
 
@@ -15,8 +25,11 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
     <Text
       style={[
         { color: theme[themeColor ?? 'text'] },
+        type === 'linkPrimary' && { color: theme.tint },
         type === 'default' && styles.default,
+        type === 'display' && styles.display,
         type === 'title' && styles.title,
+        type === 'label' && styles.label,
         type === 'small' && styles.small,
         type === 'smallBold' && styles.smallBold,
         type === 'subtitle' && styles.subtitle,
@@ -46,6 +59,12 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     fontWeight: 500,
   },
+  display: {
+    fontSize: 56,
+    fontWeight: 800,
+    lineHeight: 60,
+    letterSpacing: -1.5,
+  },
   title: {
     fontSize: 48,
     fontWeight: 600,
@@ -56,6 +75,13 @@ const styles = StyleSheet.create({
     lineHeight: 44,
     fontWeight: 600,
   },
+  label: {
+    fontSize: 12,
+    fontWeight: 700,
+    lineHeight: 16,
+    letterSpacing: 1.6,
+    textTransform: 'uppercase',
+  },
   link: {
     lineHeight: 30,
     fontSize: 14,
@@ -63,7 +89,6 @@ const styles = StyleSheet.create({
   linkPrimary: {
     lineHeight: 30,
     fontSize: 14,
-    color: '#3c87f7',
   },
   code: {
     fontFamily: Fonts.mono,
