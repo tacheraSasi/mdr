@@ -6,16 +6,17 @@ import { ThemedView } from "@/components/themed-view";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useState } from "react";
 import { pickFile } from "@/lib/file";
+import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
   const [pickFileUri, setPickedFileUri] = useState<string | undefined>();
+  const router = useRouter();
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.heroSection}>
           <ThemedText type="title" style={styles.title}>
             Welcome to&nbsp;MDR
-            {pickFileUri}
           </ThemedText>
         </ThemedView>
         <Button
@@ -23,6 +24,14 @@ export default function HomeScreen() {
           onPress={async () => {
             const uri = await pickFile();
             setPickedFileUri(uri);
+            if (pickFileUri) {
+              router.push({
+                pathname: "/viewer",
+                params: {
+                  uri: pickFileUri,
+                },
+              });
+            }
           }}
         />
       </SafeAreaView>

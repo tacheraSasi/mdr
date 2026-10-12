@@ -1,4 +1,4 @@
-import * as DocumentPicker from 'expo-document-picker';
+import * as DocumentPicker from "expo-document-picker";
 
 /**
 Picks a file then returns the result
@@ -9,12 +9,17 @@ export async function pickFile() {
     const result = await DocumentPicker.getDocumentAsync({
       type: ["text/markdown", "text/plain"],
       copyToCacheDirectory: true,
-    })
+    });
     if (!result.canceled) {
       const { uri } = result.assets[0]; // will be expected to select only one file
-      return uri
+      return uri;
     }
   } catch (error) {
-    throw error
- }
+    throw error;
+  }
+}
+
+export async function readFileText(uri: string): Promise<string> {
+  const res = await fetch(uri);
+  return res.text();
 }
