@@ -40,8 +40,8 @@ export default function SettingsScreen() {
       contentInset={insets}
       contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
       <View style={[styles.titleContainer, headerPlatformStyle]}>
-        <ThemedText type="title">Settings</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" style={styles.centerText}>
+        <ThemedText type="display">Settings</ThemedText>
+        <ThemedText type="caption" themeColor="textSecondary" style={styles.centerText}>
           Preferences and information about MDR.
         </ThemedText>
       </View>
@@ -126,20 +126,20 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     gap: Spacing.two,
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.four,
-    width: '100%',
+    width: "100%",
     maxWidth: MaxContentWidth,
   },
   centerText: {
-    textAlign: 'center',
+    textAlign: "center",
   },
   sectionsWrapper: {
     gap: Spacing.five,
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.four,
-    width: '100%',
+    width: "100%",
     maxWidth: MaxContentWidth,
   },
   section: {

@@ -1,16 +1,18 @@
-import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
+import { StyleSheet, Text, type TextProps, type TextStyle } from 'react-native';
 
-import { Fonts, ThemeColor } from '@/constants/theme';
+import { Fonts, ThemeColor, Type } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
   type?:
     | 'default'
+    | 'hero'
     | 'display'
     | 'title'
     | 'label'
     | 'small'
     | 'smallBold'
+    | 'caption'
     | 'subtitle'
     | 'link'
     | 'linkPrimary'
@@ -25,13 +27,15 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
     <Text
       style={[
         { color: theme[themeColor ?? 'text'] },
-        type === 'linkPrimary' && { color: theme.tint },
+        type === 'linkPrimary' && { color: theme.link },
         type === 'default' && styles.default,
+        type === 'hero' && styles.hero,
         type === 'display' && styles.display,
         type === 'title' && styles.title,
         type === 'label' && styles.label,
         type === 'small' && styles.small,
         type === 'smallBold' && styles.smallBold,
+        type === 'caption' && styles.caption,
         type === 'subtitle' && styles.subtitle,
         type === 'link' && styles.link,
         type === 'linkPrimary' && styles.linkPrimary,
@@ -44,55 +48,31 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 }
 
 const styles = StyleSheet.create({
-  small: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: 500,
-  },
-  smallBold: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: 700,
-  },
-  default: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: 500,
-  },
-  display: {
-    fontSize: 56,
-    fontWeight: 800,
-    lineHeight: 60,
-    letterSpacing: -1.5,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: 600,
-    lineHeight: 52,
-  },
-  subtitle: {
-    fontSize: 32,
-    lineHeight: 44,
-    fontWeight: 600,
-  },
+  default: Type.body as TextStyle,
+  hero: Type.hero as TextStyle,
+  display: Type.display as TextStyle,
+  title: Type.title as TextStyle,
+  subtitle: Type.subtitle as TextStyle,
+  small: Type.small as TextStyle,
+  smallBold: Type.smallBold as TextStyle,
+  caption: Type.caption as TextStyle,
   label: {
-    fontSize: 12,
-    fontWeight: 700,
-    lineHeight: 16,
-    letterSpacing: 1.6,
+    ...(Type.label as TextStyle),
     textTransform: 'uppercase',
   },
   link: {
-    lineHeight: 30,
     fontSize: 14,
+    lineHeight: 22,
+    fontWeight: '600',
   },
   linkPrimary: {
-    lineHeight: 30,
     fontSize: 14,
+    lineHeight: 22,
+    fontWeight: '600',
   },
   code: {
     fontFamily: Fonts.mono,
-    fontWeight: Platform.select({ android: 700 }) ?? 500,
-    fontSize: 12,
+    fontSize: Type.mono.fontSize,
+    lineHeight: Type.mono.lineHeight,
   },
 });
