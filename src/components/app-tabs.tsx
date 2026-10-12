@@ -1,7 +1,8 @@
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useColorScheme } from 'react-native';
-
+import Lucide from "@react-native-vector-icons/lucide";  
 import { Colors } from '@/constants/theme';
+import { VectorIcon } from 'expo-router';
 
 export default function AppTabs() {
   const scheme = useColorScheme();
@@ -23,7 +24,7 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="settings">
         <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
+          src={<VectorIcon family={Lucide} name="settings-2" />}
           renderingMode="template"
         />
       </NativeTabs.Trigger>
