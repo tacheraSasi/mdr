@@ -9,6 +9,8 @@ import { readFileText } from "@/lib/file";
 import { Fonts, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { SymbolView } from "expo-symbols";
+import Markdown from 'react-native-markdown-renderer';
+import { useMarkdownStyles } from "@/hooks/useMarkdownstyles";
 
 export default function ViewerScreen() {
   const { uri } = useLocalSearchParams<{ uri: string }>();
@@ -16,6 +18,8 @@ export default function ViewerScreen() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const theme = useTheme();
+
+  const mdStyles = useMarkdownStyles()
 
   const file = new File(uri);
 
@@ -77,14 +81,10 @@ export default function ViewerScreen() {
             contentInsetAdjustmentBehavior="automatic">
             {fileContent ? (
               <View
-                style={[
-                  styles.paper,
-                  {
-                    backgroundColor: theme.backgroundElement,
-                    borderColor: theme.border,
-                  },
-                ]}>
-                <ThemedText style={styles.documentText}>{fileContent}</ThemedText>
+                >
+                  <Markdown style={mdStyles}>
+                    {fileContent}
+                </Markdown>
               </View>
             ) : (
               <View style={styles.centerMessage}>
