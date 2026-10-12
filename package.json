@@ -33,10 +33,12 @@
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
     "react-native-syntax-highlighter": "^2.1.0",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.10.1",
-    "react-syntax-highlighter": "^16.1.2"
+    "react-syntax-highlighter": "^16.1.2",
+    "yooo-native": "^1.1.0"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
