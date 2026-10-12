@@ -1,56 +1,86 @@
-# Welcome to your Expo app 👋
+# MDR
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A quiet Markdown reader for iOS, Android and the web, built with Expo.
 
-## Get started
+<p align="center">
+  <img src="assets/screenshots/home-light.png" width="260" alt="Home screen in light mode" />
+  <img src="assets/screenshots/home-dark.png" width="260" alt="Home screen in dark mode" />
+</p>
+<p align="center">
+  <img src="assets/screenshots/reader-light.png" width="260" alt="Reader screen in light mode" />
+  <img src="assets/screenshots/reader-dark.png" width="260" alt="Reader screen in dark mode" />
+</p>
 
-1. Install dependencies
+<p align="center">Screenshots captured on a 390 x 844 mobile viewport (iPhone and Pixel class), at 2x.</p>
 
-   ```bash
-   npm install
-   ```
+## Features
 
-2. Start the app
+- Opens `.md` and `.txt` files from the device with the system picker
+- Recent files grid with a stable pastel color per file, stored locally
+- GitHub style callouts: NOTE, TIP, IMPORTANT, WARNING and CAUTION
+- Tables with tinted headers, hairline rows and horizontal scroll for wide content
+- Syntax highlighted code blocks with a language chip
+- Calm neutral palette with pastels reserved for meaning, in light and dark
+- Word count and estimated reading time in the reader header
+- Documents stay on the device, nothing is uploaded
 
-   ```bash
-   npx expo start
-   ```
+## Markdown support
 
-In the output, you'll find options to open the app in a
+| Element | Treatment |
+| :--- | :--- |
+| Headings | Display scale with a rule under H1 |
+| Tables | Rounded container, uppercase header row, hairline separators, column alignment |
+| Callouts | `> [!NOTE]` maps to blue, `[!TIP]` green, `[!IMPORTANT]` purple, `[!WARNING]` yellow, `[!CAUTION]` red |
+| Code | Inline code chips and highlighted fenced blocks via `lowlight` |
+| Lists | Unordered and ordered with muted markers |
+| Quotes | Muted text with a soft left rule |
+| Links | Accent color, opened in an in-app browser on native |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Design system
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+The look is calm: a neutral canvas, one dark ink color, and five pastel meaning colors. Tokens live in `src/constants/theme.ts`.
 
-## Get a fresh project
+- Cards are flat with no borders or shadows. Only floating panels get a soft shadow.
+- Cards use a large title and a small muted footer, for example a file name and its first line.
+- The reader keeps generous line height and stays within a 680 point content width.
 
-When you're ready, run:
+## Getting started
+
+Install dependencies and start the dev server:
 
 ```bash
-npm run reset-project
+bun install
+bunx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Then press `a` for Android, `i` for iOS or `w` for the web, or scan the QR code with a development build.
 
-### Other setup steps
+## Commands
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+bunx expo start          # start the dev server
+bunx expo start -c       # start with a cleared Metro cache
+bunx expo lint           # lint
+bunx tsc --noEmit        # typecheck
+bunx expo-doctor         # diagnose dependency and config issues
+```
 
-## Learn more
+## Project structure
 
-To learn more about developing your project with Expo, look at the following resources:
+```
+src/
+  app/          Expo Router routes (tabs, viewer)
+  components/   MDRender, CodeBlock and themed primitives
+  constants/    design tokens and theme
+  hooks/        markdown styles and color scheme helpers
+  lib/          file helpers and recents storage
+assets/         icons and screenshots
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Tech stack
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Expo Router and React Native
+- `react-native-markdown-renderer` with custom table, callout and code rules
+- `lowlight` for syntax highlighting
+- yooo-native for dialogs and toasts
+- AsyncStorage for the recent files list
