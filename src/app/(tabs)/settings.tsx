@@ -8,13 +8,13 @@ import {
   FieldGroup,
   Host,
   ListItem,
-  Picker,
   Row,
   Spacer,
-  Switch,
   Text as NativeText,
 } from '@expo/ui';
 
+import { SettingPicker } from '@/components/settings/setting-picker';
+import { SettingSwitch } from '@/components/settings/setting-switch';
 import { Colors, MaxContentWidth, Space, Type } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useHaptics } from '@/hooks/use-haptics';
@@ -24,8 +24,6 @@ import {
   TEXT_SIZE_OPTIONS,
   THEME_OPTIONS,
   type AppSettings,
-  type ReaderTextSize,
-  type ThemePreference,
 } from '@/lib/settings';
 
 function FooterText({ children }: { children: string }) {
@@ -120,21 +118,15 @@ export default function SettingsScreen() {
       <Host style={styles.host} colorScheme={scheme} seedColor={c.link}>
         <FieldGroup>
           <FieldGroup.Section title="Appearance">
-            <Row spacing={12}>
-              <NativeText>Theme</NativeText>
-              <Spacer flexible />
-              <Picker
-                selectedValue={settings.theme}
-                onValueChange={(value: ThemePreference) => {
-                  haptics.selection();
-                  update('theme', value);
-                }}
-                accessibilityLabel="Theme">
-                {THEME_OPTIONS.map((option) => (
-                  <Picker.Item key={option.value} label={option.label} value={option.value} />
-                ))}
-              </Picker>
-            </Row>
+            <SettingPicker
+              label="Theme"
+              value={settings.theme}
+              options={THEME_OPTIONS}
+              onValueChange={(value) => {
+                haptics.selection();
+                update('theme', value);
+              }}
+            />
             <FieldGroup.SectionFooter>
               <FooterText>System follows your device’s light and dark appearance. The whole app updates
               immediately.</FooterText>
@@ -142,22 +134,16 @@ export default function SettingsScreen() {
           </FieldGroup.Section>
 
           <FieldGroup.Section title="Reading">
-            <Row spacing={12}>
-              <NativeText>Text size</NativeText>
-              <Spacer flexible />
-              <Picker
-                selectedValue={settings.readerTextSize}
-                onValueChange={(value: ReaderTextSize) => {
-                  haptics.selection();
-                  update('readerTextSize', value);
-                }}
-                accessibilityLabel="Reader text size">
-                {TEXT_SIZE_OPTIONS.map((option) => (
-                  <Picker.Item key={option.value} label={option.label} value={option.value} />
-                ))}
-              </Picker>
-            </Row>
-            <Switch
+            <SettingPicker
+              label="Text size"
+              value={settings.readerTextSize}
+              options={TEXT_SIZE_OPTIONS}
+              onValueChange={(value) => {
+                haptics.selection();
+                update('readerTextSize', value);
+              }}
+            />
+            <SettingSwitch
               label="Show reading stats"
               value={settings.showReadingStats}
               onValueChange={(value) => update('showReadingStats', value)}
@@ -169,12 +155,12 @@ export default function SettingsScreen() {
           </FieldGroup.Section>
 
           <FieldGroup.Section title="Behavior">
-            <Switch
+            <SettingSwitch
               label="Haptic feedback"
               value={settings.haptics}
               onValueChange={(value) => update('haptics', value)}
             />
-            <Switch
+            <SettingSwitch
               label="Save recent files"
               value={settings.rememberRecents}
               onValueChange={(value) => update('rememberRecents', value)}
