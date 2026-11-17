@@ -76,6 +76,23 @@ bunx tsc --noEmit        # typecheck
 bunx expo-doctor         # diagnose dependency and config issues
 ```
 
+## Local Android build
+
+The `Makefile` wraps the local Android workflow. It expects JDK 17, Android Studio with the SDK installed, Bun, and an AVD.
+
+```bash
+make setup               # verify the toolchain and install required SDK packages
+make emulator            # boot the configured AVD and wait for Android
+make android             # generate android/, build, install, start Metro
+make start               # Metro only after the first native build
+make launch              # launch the installed app on the emulator
+make apk                 # installable release APK in dist/mdr-release.apk
+make release             # release build installed on the connected device
+make help                # list every target
+```
+
+Override the default AVD with `make emulator AVD=Medium_Phone_API_37.0`. The generated `android/` directory is ignored by git — regenerate it with `make prebuild` after changing native configuration.
+
 ## Project structure
 
 ```
