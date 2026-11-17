@@ -210,7 +210,11 @@ export const MDRender = ({ style, rules, children, ...rest }: MarkdownProps) => 
         const extra: ViewStyle = {};
 
         if (ancestor?.type === 'list_item') {
-          extra.marginBottom = 6;
+          return (
+            <View key={node.key} style={[ruleStyles.paragraph as ViewStyle, { marginBottom: 6 }]}>
+              {children}
+            </View>
+          );
         }
 
         return (
