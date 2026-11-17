@@ -16,6 +16,8 @@ import { alert, toast } from "yooo-native";
 import { ThemedView } from "@/components/themed-view";
 import { BottomTabInset, Colors, MaxContentWidth, Radius, Space, Type, pastelFor } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useHaptics } from "@/hooks/use-haptics";
+import { useSettings } from "@/hooks/use-settings";
 import { pickFile } from "@/lib/file";
 import { forgetFile, loadRecents, type RecentFile } from "@/lib/recents";
 
@@ -56,6 +58,8 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const c = Colors[scheme === "dark" ? "dark" : "light"];
+  const haptics = useHaptics();
+  const { settings } = useSettings();
   const [recents, setRecents] = useState<RecentFile[] | null>(null);
 
   useFocusEffect(
@@ -71,9 +75,7 @@ export default function HomeScreen() {
   );
 
   const openFile = useCallback(async () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    haptics.impact();
     try {
       const uri = await pickFile();
       if (uri) {
@@ -84,33 +86,32 @@ export default function HomeScreen() {
         description: "Choose a .md or .txt file and try again.",
       });
     }
-  }, [router]);
+  }, [router, haptics]);
 
   const openRecent = useCallback(
     (item: RecentFile) => {
-      if (Platform.OS !== "web") {
-        Haptics.selectionAsync();
-      }
+      haptics.selection();
       router.push({ pathname: "/viewer", params: { uri: item.uri } });
     },
-    [router],
+    [router, haptics],
   );
 
-  const removeRecent = useCallback((item: RecentFile) => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
-    }
-    alert.dialog("Remove from recents", `“${item.name}” will leave this list.`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Remove",
-        style: "destructive",
-        onPress: () => {
-          forgetFile(item.uri).then(setRecents);
+  const removeRecent = useCallback(
+    (item: RecentFile) => {
+      haptics.impact(Haptics.ImpactFeedbackStyle.Rigid);
+      alert.dialog("Remove from recents", `“${item.name}” will leave this list.`, [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: () => {
+            forgetFile(item.uri).then(setRecents);
+          },
         },
-      },
-    ]);
-  }, []);
+      ]);
+    },
+    [haptics],
+  );
 
   return (
     <ThemedView style={styles.container}>
@@ -146,7 +147,7 @@ export default function HomeScreen() {
             </View>
           }
           ListEmptyComponent={
-            recents === null ? null : (
+            recents === null ? undefined : (
               <View
                 style={[
                   styles.empty,
@@ -154,7 +155,9 @@ export default function HomeScreen() {
                 ]}>
                 <Text style={[Type.title, { color: c.text }]}>No recent files</Text>
                 <Text style={[Type.caption, { color: c.textSecondary }]}>
-                  Open a markdown or text file and it will wait for you here.
+                  {settings.rememberRecents
+                    ? "Open a markdown or text file and it will wait for you here."
+                    : "Recent files are turned off. You can enable them in Settings."}
                 </Text>
               </View>
             )
