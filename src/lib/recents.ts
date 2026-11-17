@@ -53,3 +53,7 @@ export async function forgetFile(uri: string): Promise<RecentFile[]> {
   await save(next);
   return next;
 }
+
+export async function clearRecents(): Promise<void> {
+  await AsyncStorage.removeItem(STORAGE_KEY);
+}
