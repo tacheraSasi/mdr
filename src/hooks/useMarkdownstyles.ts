@@ -3,6 +3,8 @@ import { StyleSheet } from 'react-native';
 
 import { Colors, Fonts } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useSettings } from '@/hooks/use-settings';
+import { ReaderScale } from '@/lib/settings';
 
 export const paragraphGap = 16;
 export const codeRadius = 10;
@@ -13,15 +15,20 @@ export function useMarkdownStyles() {
   const c = Colors[dark ? 'dark' : 'light'];
   const mono = Fonts.mono;
   const hairline = StyleSheet.hairlineWidth;
+  const { settings } = useSettings();
+  const scale = ReaderScale[settings.readerTextSize];
 
-  return useMemo(() => ({
+  return useMemo(() => {
+    const s = (size: number) => Math.round(size * scale);
+
+    return ({
     root: { width: '100%', alignSelf: 'stretch' },
     view: {},
 
     text: {
       color: c.text,
-      fontSize: 16,
-      lineHeight: 27,
+      fontSize: s(16),
+      lineHeight: s(27),
     },
     paragraph: {
       marginTop: 0,
@@ -64,19 +71,19 @@ export function useMarkdownStyles() {
       color: c.text,
       fontWeight: '700',
     },
-    heading1: { fontSize: 28, lineHeight: 36, letterSpacing: -0.4 },
+    heading1: { fontSize: s(28), lineHeight: s(36), letterSpacing: -0.4 },
     heading1Container: {
       paddingBottom: 10,
       borderBottomWidth: hairline,
       borderBottomColor: c.border,
       marginBottom: 16,
     },
-    heading2: { fontSize: 22, lineHeight: 30, letterSpacing: -0.3 },
+    heading2: { fontSize: s(22), lineHeight: s(30), letterSpacing: -0.3 },
     heading2Container: { paddingBottom: 2, borderBottomWidth: 0 },
-    heading3: { fontSize: 18, lineHeight: 26, letterSpacing: -0.2 },
-    heading4: { fontSize: 16, lineHeight: 24 },
-    heading5: { fontSize: 15, lineHeight: 22, color: c.textSecondary },
-    heading6: { fontSize: 13, lineHeight: 20, color: c.textSecondary, letterSpacing: 0.4 },
+    heading3: { fontSize: s(18), lineHeight: s(26), letterSpacing: -0.2 },
+    heading4: { fontSize: s(16), lineHeight: s(24) },
+    heading5: { fontSize: s(15), lineHeight: s(22), color: c.textSecondary },
+    heading6: { fontSize: s(13), lineHeight: s(20), color: c.textSecondary, letterSpacing: 0.4 },
 
     hr: {
       backgroundColor: c.border,
@@ -103,8 +110,8 @@ export function useMarkdownStyles() {
       marginBottom: paragraphGap,
     },
     calloutLabel: {
-      fontSize: 12,
-      lineHeight: 16,
+      fontSize: s(12),
+      lineHeight: s(16),
       fontWeight: '700',
       letterSpacing: 0.3,
     },
@@ -119,8 +126,8 @@ export function useMarkdownStyles() {
       paddingHorizontal: 5,
       paddingVertical: 2,
       fontFamily: mono,
-      fontSize: 14,
-      lineHeight: 22,
+      fontSize: s(14),
+      lineHeight: s(22),
       overflow: 'hidden',
     },
     inlineCode: {
@@ -130,8 +137,8 @@ export function useMarkdownStyles() {
       paddingHorizontal: 5,
       paddingVertical: 2,
       fontFamily: mono,
-      fontSize: 14,
-      lineHeight: 22,
+      fontSize: s(14),
+      lineHeight: s(22),
     },
     codeBlock: {
       color: c.text,
@@ -139,8 +146,8 @@ export function useMarkdownStyles() {
       borderRadius: codeRadius,
       padding: 14,
       fontFamily: mono,
-      fontSize: 13,
-      lineHeight: 20,
+      fontSize: s(13),
+      lineHeight: s(20),
       marginBottom: paragraphGap,
     },
     pre: { marginBottom: 0 },
@@ -155,12 +162,12 @@ export function useMarkdownStyles() {
     },
     listUnorderedItemIcon: {
       color: c.textMuted,
-      fontSize: 16,
-      lineHeight: 27,
+      fontSize: s(16),
+      lineHeight: s(27),
       marginLeft: 4,
       marginRight: 10,
     },
-    listUnorderedItemText: { fontSize: 16, lineHeight: 27, color: c.text },
+    listUnorderedItemText: { fontSize: s(16), lineHeight: s(27), color: c.text },
     listOrdered: {},
     listOrderedItem: {
       flexDirection: 'row',
@@ -169,15 +176,15 @@ export function useMarkdownStyles() {
     },
     listOrderedItemIcon: {
       color: c.textSecondary,
-      fontSize: 15,
-      lineHeight: 27,
+      fontSize: s(15),
+      lineHeight: s(27),
       fontWeight: '600',
       fontVariant: ['tabular-nums'],
       minWidth: 22,
       marginLeft: 4,
       marginRight: 10,
     },
-    listOrderedItemText: { fontSize: 16, lineHeight: 27, color: c.text },
+    listOrderedItemText: { fontSize: s(16), lineHeight: s(27), color: c.text },
 
     hardbreak: { width: '100%', height: 1 },
 
@@ -193,8 +200,8 @@ export function useMarkdownStyles() {
     tableHeader: { backgroundColor: c.codeBg },
     tableHeaderText: {
       color: c.textSecondary,
-      fontSize: 12,
-      lineHeight: 16,
+      fontSize: s(12),
+      lineHeight: s(16),
       fontWeight: '700',
       letterSpacing: 0.6,
       textTransform: 'uppercase',
@@ -220,5 +227,6 @@ export function useMarkdownStyles() {
     },
 
     image: { flex: 1 },
-  }), [c, mono, hairline]);
+    });
+  }, [c, mono, hairline, scale]);
 }
