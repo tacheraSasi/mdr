@@ -1,0 +1,47 @@
+{
+  "fill": {
+    "automatic-gradient": "extended-srgb:0.11765,0.15294,0.20000,1.00000"
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "image-name": "bookmark.svg",
+          "name": "Bookmark",
+          "position": {
+            "scale": 1,
+            "translation-in-points": [
+              0,
+              -6
+            ]
+          }
+        },
+        {
+          "image-name": "page.svg",
+          "name": "Page",
+          "position": {
+            "scale": 1,
+            "translation-in-points": [
+              0,
+              -6
+            ]
+          }
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.5
+      }
+    }
+  ],
+  "supported-platforms": {
+    "circles": [
+      "watchOS"
+    ],
+    "squares": "shared"
+  }
+}
