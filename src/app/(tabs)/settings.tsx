@@ -1,148 +1,233 @@
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import Constants from 'expo-constants';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { alert, toast } from 'yooo-native';
+import {
+  FieldGroup,
+  Host,
+  ListItem,
+  Picker,
+  Row,
+  Spacer,
+  Switch,
+  Text as NativeText,
+} from '@expo/ui';
 
-import { ExternalLink } from '@/components/external-link';
-import { ThemedText } from '@/components/themed-text';
-import { Collapsible } from '@/components/ui/collapsible';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { Colors, MaxContentWidth, Space, Type } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useHaptics } from '@/hooks/use-haptics';
+import { useSettings } from '@/hooks/use-settings';
+import { clearRecents, loadRecents } from '@/lib/recents';
+import {
+  TEXT_SIZE_OPTIONS,
+  THEME_OPTIONS,
+  type AppSettings,
+  type ReaderTextSize,
+  type ThemePreference,
+} from '@/lib/settings';
+
+function FooterText({ children }: { children: string }) {
+  const c = Colors[useColorScheme()];
+  return <NativeText textStyle={{ fontSize: 13, color: c.textSecondary }}>{children}</NativeText>;
+}
 
 export default function SettingsScreen() {
-  const safeAreaInsets = useSafeAreaInsets();
-  const insets = {
-    ...safeAreaInsets,
-    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-  };
-  const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const scheme = useColorScheme();
+  const c = Colors[scheme];
+  const { settings, updateSettings, resetSettings } = useSettings();
+  const haptics = useHaptics();
+  const [recentCount, setRecentCount] = useState<number | null>(null);
 
-  const contentPlatformStyle = Platform.select({
-    android: {
-      paddingTop: insets.top,
-      paddingLeft: insets.left,
-      paddingRight: insets.right,
-      paddingBottom: insets.bottom,
-    },
-    web: {
-      paddingTop: Spacing.six,
-      paddingBottom: Spacing.four,
-    },
-  });
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      loadRecents().then((items) => {
+        if (active) setRecentCount(items.length);
+      });
+      return () => {
+        active = false;
+      };
+    }, []),
+  );
 
-  const headerPlatformStyle = Platform.select({
-    android: { paddingTop: insets.top },
-    default: { paddingTop: Spacing.four },
-  });
+  const update = useCallback(
+    <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
+      updateSettings({ [key]: value } as Partial<AppSettings>);
+    },
+    [updateSettings],
+  );
+
+  const onClearRecents = useCallback(() => {
+    if (recentCount === 0) {
+      toast.info('No recent files', { description: 'Open a document and it will show up here.' });
+      return;
+    }
+
+    alert.dialog(
+      'Clear recent files?',
+      'This removes every document from Recents. The files themselves stay on your device.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: async () => {
+            await clearRecents();
+            setRecentCount(0);
+            haptics.notify();
+            toast.success('Recent files cleared');
+          },
+        },
+      ],
+    );
+  }, [recentCount, haptics]);
+
+  const onReset = useCallback(() => {
+    alert.dialog('Reset settings?', 'Appearance and reading options return to their defaults.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Reset',
+        style: 'destructive',
+        onPress: () => {
+          resetSettings();
+          haptics.notify();
+          toast.success('Settings reset');
+        },
+      },
+    ]);
+  }, [resetSettings, haptics]);
+
+  const version = Constants.expoConfig?.version ?? '1.0.0';
+  const recentSummary =
+    recentCount === null
+      ? 'Loading…'
+      : recentCount === 0
+        ? 'No recent files'
+        : `${recentCount} file${recentCount === 1 ? '' : 's'} saved`;
 
   return (
-    <ScrollView
-      style={[styles.scrollView, { backgroundColor: theme.background }]}
-      contentInset={insets}
-      contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
-      <View style={[styles.titleContainer, headerPlatformStyle]}>
-        <ThemedText type="display">Settings</ThemedText>
-        <ThemedText type="caption" themeColor="textSecondary" style={styles.centerText}>
+    <View style={[styles.container, { backgroundColor: c.background }]}>
+      <View style={[styles.header, { paddingTop: insets.top + Space.md }]}>
+        <Text style={[Type.display, { color: c.ink }]}>Settings</Text>
+        <Text style={[Type.caption, { color: c.textSecondary }]}>
           Preferences and information about MDR.
-        </ThemedText>
+        </Text>
       </View>
 
-      <View style={styles.sectionsWrapper}>
-        <View style={styles.section}>
-          <ThemedText type="label" themeColor="textSecondary">
-            Reading
-          </ThemedText>
+      <Host style={styles.host} colorScheme={scheme} seedColor={c.link}>
+        <FieldGroup>
+          <FieldGroup.Section title="Appearance">
+            <Row spacing={12}>
+              <NativeText>Theme</NativeText>
+              <Spacer flexible />
+              <Picker
+                selectedValue={settings.theme}
+                onValueChange={(value: ThemePreference) => {
+                  haptics.selection();
+                  update('theme', value);
+                }}
+                accessibilityLabel="Theme">
+                {THEME_OPTIONS.map((option) => (
+                  <Picker.Item key={option.value} label={option.label} value={option.value} />
+                ))}
+              </Picker>
+            </Row>
+            <FieldGroup.SectionFooter>
+              <FooterText>System follows your device’s light and dark appearance. The whole app updates
+              immediately.</FooterText>
+            </FieldGroup.SectionFooter>
+          </FieldGroup.Section>
 
-          <Collapsible title="Appearance">
-            <ThemedText type="small">
-              MDR follows your device’s light and dark appearance automatically. Use the system
-              setting on your device to switch between themes.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+          <FieldGroup.Section title="Reading">
+            <Row spacing={12}>
+              <NativeText>Text size</NativeText>
+              <Spacer flexible />
+              <Picker
+                selectedValue={settings.readerTextSize}
+                onValueChange={(value: ReaderTextSize) => {
+                  haptics.selection();
+                  update('readerTextSize', value);
+                }}
+                accessibilityLabel="Reader text size">
+                {TEXT_SIZE_OPTIONS.map((option) => (
+                  <Picker.Item key={option.value} label={option.label} value={option.value} />
+                ))}
+              </Picker>
+            </Row>
+            <Switch
+              label="Show reading stats"
+              value={settings.showReadingStats}
+              onValueChange={(value) => update('showReadingStats', value)}
+            />
+            <FieldGroup.SectionFooter>
+              <FooterText>Text size applies to the document reader. Reading stats show the word count and
+              estimated reading time.</FooterText>
+            </FieldGroup.SectionFooter>
+          </FieldGroup.Section>
 
-          <Collapsible title="Supported file types">
-            <ThemedText type="small">
-              You can open <ThemedText type="code">.md</ThemedText> and{' '}
-              <ThemedText type="code">.txt</ThemedText> files stored on this device. Files are read
-              locally — nothing is uploaded.
-            </ThemedText>
-          </Collapsible>
-        </View>
+          <FieldGroup.Section title="Behavior">
+            <Switch
+              label="Haptic feedback"
+              value={settings.haptics}
+              onValueChange={(value) => update('haptics', value)}
+            />
+            <Switch
+              label="Save recent files"
+              value={settings.rememberRecents}
+              onValueChange={(value) => update('rememberRecents', value)}
+            />
+            <FieldGroup.SectionFooter>
+              <FooterText>Haptics add a light tap when opening or acting on documents. With recent files off,
+              new documents are not added to the home list.</FooterText>
+            </FieldGroup.SectionFooter>
+          </FieldGroup.Section>
 
-        <View style={styles.section}>
-          <ThemedText type="label" themeColor="textSecondary">
-            About
-          </ThemedText>
+          <FieldGroup.Section title="Storage">
+            <ListItem onPress={onClearRecents} supportingText={recentSummary}>
+              Clear recent files
+            </ListItem>
+            <ListItem onPress={onReset} supportingText="Restore appearance and reading defaults.">
+              Reset settings
+            </ListItem>
+          </FieldGroup.Section>
 
-          <Collapsible title="Built with Expo">
-            <ThemedText type="small">
-              MDR is built with Expo and React Native, so it runs on iOS, Android, and the web from
-              a single codebase.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev">
-              <ThemedText type="linkPrimary">Expo documentation</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="File-based routing">
-            <ThemedText type="small">
-              This app uses Expo Router. Screens live in{' '}
-              <ThemedText type="code">src/app/</ThemedText> — the home screen is{' '}
-              <ThemedText type="code">(tabs)/index.tsx</ThemedText> and the reader is{' '}
-              <ThemedText type="code">viewer.tsx</ThemedText>.
-            </ThemedText>
-          </Collapsible>
-        </View>
-
-        <View style={styles.section}>
-          <ThemedText type="label" themeColor="textSecondary">
-            Feedback
-          </ThemedText>
-
-          <Collapsible title="Get involved">
-            <ThemedText type="small">
-              MDR is built on Expo — report issues or browse the source.
-            </ThemedText>
-            <ExternalLink href="https://github.com/expo/expo">
-              <ThemedText type="linkPrimary">Expo on GitHub</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-        </View>
-      </View>
-
-      {Platform.OS === 'web' && <WebBadge />}
-    </ScrollView>
+          <FieldGroup.Section title="About">
+            <Row spacing={12}>
+              <NativeText>Version</NativeText>
+              <Spacer flexible />
+              <NativeText textStyle={{ color: c.textSecondary }}>{version}</NativeText>
+            </Row>
+            <Row spacing={12}>
+              <NativeText>Documents</NativeText>
+              <Spacer flexible />
+              <NativeText textStyle={{ color: c.textSecondary }}>Markdown and text</NativeText>
+            </Row>
+            <FieldGroup.SectionFooter>
+              <FooterText>MDR reads files locally. Nothing is uploaded or sent anywhere.</FooterText>
+            </FieldGroup.SectionFooter>
+          </FieldGroup.Section>
+        </FieldGroup>
+      </Host>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
+  container: {
     flex: 1,
   },
-  contentContainer: {
-    alignItems: 'center',
-  },
-  titleContainer: {
-    gap: Spacing.two,
-    alignItems: "center",
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    width: "100%",
+  header: {
+    width: '100%',
     maxWidth: MaxContentWidth,
+    alignSelf: 'center',
+    paddingHorizontal: Space.lg,
+    paddingBottom: Space.md,
+    gap: Space.xs,
   },
-  centerText: {
-    textAlign: "center",
-  },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    width: "100%",
-    maxWidth: MaxContentWidth,
-  },
-  section: {
-    gap: Spacing.three,
+  host: {
+    flex: 1,
   },
 });
