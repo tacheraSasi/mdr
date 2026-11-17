@@ -3,6 +3,10 @@
 A quiet Markdown reader for iOS, Android and the web, built with Expo.
 
 <p align="center">
+  <img src="assets/screenshots/app-icon.png" width="120" alt="MDR app icon" />
+</p>
+
+<p align="center">
   <img src="assets/screenshots/home-light.png" width="260" alt="Home screen in light mode" />
   <img src="assets/screenshots/home-dark.png" width="260" alt="Home screen in dark mode" />
 </p>
