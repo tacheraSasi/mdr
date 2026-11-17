@@ -10,13 +10,20 @@ A quiet Markdown reader for iOS, Android and the web, built with Expo.
   <img src="assets/screenshots/reader-light.png" width="260" alt="Reader screen in light mode" />
   <img src="assets/screenshots/reader-dark.png" width="260" alt="Reader screen in dark mode" />
 </p>
+<p align="center">
+  <img src="assets/screenshots/settings-light.png" width="260" alt="Settings screen in light mode" />
+  <img src="assets/screenshots/settings-dark.png" width="260" alt="Settings screen in dark mode" />
+</p>
 
-<p align="center">Screenshots captured on a 390 x 844 mobile viewport (iPhone and Pixel class), at 2x.</p>
+<p align="center">Screenshots captured on an iPhone 17 simulator in light and dark appearance.</p>
 
 ## Features
 
 - Opens `.md` and `.txt` files from the device with the system picker
+- Native settings screen with a persisted System / Light / Dark theme, applied app-wide
+- Reader text size, reading stats, haptic feedback and recent-file preferences
 - Recent files grid with a stable pastel color per file, stored locally
+- Clear recent files and reset settings from the Storage section
 - GitHub style callouts: NOTE, TIP, IMPORTANT, WARNING and CAUTION
 - Tables with tinted headers, hairline rows and horizontal scroll for wide content
 - Syntax highlighted code blocks with a language chip
@@ -69,18 +76,20 @@ bunx expo-doctor         # diagnose dependency and config issues
 
 ```
 src/
-  app/          Expo Router routes (tabs, viewer)
+  app/          Expo Router routes (tabs, settings, viewer)
   components/   MDRender, CodeBlock and themed primitives
   constants/    design tokens and theme
-  hooks/        markdown styles and color scheme helpers
-  lib/          file helpers and recents storage
+  hooks/        color scheme, haptics and markdown styles
+  lib/          file helpers, recents storage and settings model
+  providers/    persisted settings and theme resolution
 assets/         icons and screenshots
 ```
 
 ## Tech stack
 
 - Expo Router and React Native
+- `@expo/ui` for the native settings form (`Form`, `Toggle` and `Picker` via SwiftUI and Jetpack Compose)
 - `react-native-markdown-renderer` with custom table, callout and code rules
 - `lowlight` for syntax highlighting
 - yooo-native for dialogs and toasts
-- AsyncStorage for the recent files list
+- AsyncStorage for the recent files list and settings
