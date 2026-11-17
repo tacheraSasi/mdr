@@ -10,6 +10,7 @@ import { MDRender } from "@/components/MDRender";
 import { ThemedView } from "@/components/themed-view";
 import { Colors, MaxContentWidth, Radius, Space, Type } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useSettings } from "@/hooks/use-settings";
 import { firstLineOf, readFileText, wordCountOf } from "@/lib/file";
 import { rememberFile } from "@/lib/recents";
 
@@ -19,6 +20,7 @@ export default function ViewerScreen() {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const c = Colors[scheme === "dark" ? "dark" : "light"];
+  const { settings } = useSettings();
 
   const [content, setContent] = useState<string | null>(null);
   const [name, setName] = useState("Document");
@@ -34,7 +36,9 @@ export default function ViewerScreen() {
         if (cancelled) return;
         setName(file.name);
         setContent(text);
-        await rememberFile({ uri, name: file.name, firstLine: firstLineOf(text) });
+        if (settings.rememberRecents) {
+          await rememberFile({ uri, name: file.name, firstLine: firstLineOf(text) });
+        }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
       }
@@ -43,14 +47,16 @@ export default function ViewerScreen() {
     return () => {
       cancelled = true;
     };
-  }, [uri]);
+  }, [uri, settings.rememberRecents]);
 
   const words = useMemo(() => (content === null ? 0 : wordCountOf(content)), [content]);
   const meta = error
     ? "Couldn’t open"
     : content === null
       ? "Opening…"
-      : `${words} word${words === 1 ? "" : "s"} · ${Math.max(1, Math.round(words / 200))} min read`;
+      : settings.showReadingStats
+        ? `${words} word${words === 1 ? "" : "s"} · ${Math.max(1, Math.round(words / 200))} min read`
+        : null;
 
   return (
     <ThemedView type="backgroundElement" style={styles.container}>
@@ -75,7 +81,7 @@ export default function ViewerScreen() {
             <Text numberOfLines={1} style={[Type.smallBold, { color: c.text }]}>
               {name}
             </Text>
-            <Text style={[Type.caption, { color: c.textMuted }]}>{meta}</Text>
+            {meta ? <Text style={[Type.caption, { color: c.textMuted }]}>{meta}</Text> : null}
           </View>
         </View>
 
